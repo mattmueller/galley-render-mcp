@@ -1,0 +1,11 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "galley-render",
+  "description": "JSON in, PDF out. Render invoices, certificates, reports and cards from a template and a payload.",
+  "mcpServers": {
+    "galley-render": {
+      "type": "http",
+      "url": "https://mcp.galleyrender.com/mcp"
+    }
+  }
+}
