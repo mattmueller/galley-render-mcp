@@ -1,0 +1,25 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.1.0/plugin.schema.json",
+  "name": "galley-render",
+  "version": "0.1.0",
+  "description": "JSON in, PDF out. Render invoices, certificates, reports and cards from a template and a payload. No API key needed to start.",
+  "author": {
+    "name": "Galley Render",
+    "email": "support@galleyrender.com",
+    "url": "https://galleyrender.com"
+  },
+  "homepage": "https://galleyrender.com",
+  "repository": "https://github.com/mattmueller/galley-render-mcp",
+  "license": "MIT",
+  "keywords": [
+    "pdf",
+    "pdf-generation",
+    "html-to-pdf",
+    "invoice",
+    "certificate",
+    "og-image",
+    "document-api",
+    "mcp",
+    "agents"
+  ]
+}

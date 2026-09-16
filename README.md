@@ -131,13 +131,20 @@ cards, social quote cards, event tickets, badges, menus, price sheets, letters a
 
 | File | What it is |
 |---|---|
+| [`plugin.json`](./plugin.json) | Agent Plugins 1.1.0 manifest — the file directories look for first |
+| [`mcp.json`](./mcp.json) | Agent Plugins MCP configuration: one `streamable-http` server |
 | [`server.json`](./server.json) | The entry published to the official MCP registry, schema `2025-12-11` |
-| [`mcp.json`](./mcp.json) | Drop-in client config for anything that reads the `mcpServers` shape |
 | [`README.md`](./README.md) | This page |
 
 There is no source code in this repository and none is planned. It exists so that directories
 which require a public repository — cursor.directory, mcp.so, the n8n Creator Portal — have one
 to read.
+
+`plugin.json` and `mcp.json` follow the [Agent Plugins](https://agent-plugins.org) standard
+(formerly Open Plugins), both validated against the 1.1.0 schemas, which is what
+[cursor.directory](https://cursor.directory) auto-detects from a repository URL. Note that the
+standard spells the transport `streamable-http`, while a hand-written `~/.cursor/mcp.json` uses
+the shorter shape shown above — Cursor accepts either.
 
 `server.json` is generated from the Galley Render monorepo and re-published to the registry
 whenever the tool surface changes; treat it as a copy, not the source of truth.
@@ -150,8 +157,8 @@ Node and Python clients — see <https://galleyrender.com/docs/sdks>.
 
 ## Licence
 
-The files in this repository — `README.md`, `mcp.json` and `server.json` — are released under the
-[MIT licence](./LICENSE), so a directory or client may copy them freely.
+The files in this repository — `README.md`, `plugin.json`, `mcp.json` and `server.json` — are
+released under the [MIT licence](./LICENSE), so a directory or client may copy them freely.
 
 That licence covers **these manifest files only**. It is not a licence to the Galley Render
 service, its API, its templates or its name. Use of the service is governed by the
