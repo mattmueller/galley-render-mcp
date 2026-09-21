@@ -5,6 +5,13 @@
   "description": "JSON in, PDF out. Render invoices, certificates, reports and cards from a template and a payload.",
   "version": "0.1.0",
   "websiteUrl": "https://galleyrender.com",
+  "icons": [
+    {
+      "src": "https://galleyrender.com/icon-512.png",
+      "mimeType": "image/png",
+      "sizes": ["512x512"]
+    }
+  ],
   "remotes": [
     {
       "type": "streamable-http",

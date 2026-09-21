@@ -1,53 +1,54 @@
-# Galley Render — MCP server
+<!-- Generated from README.template.md by build.mjs in the Galley Render monorepo (ops/listings/galley-render-mcp). Edit there, not here. -->
+# Galley Render MCP server
 
 **JSON in, PDF out.** Galley Render turns a template and a JSON payload into a PDF, PNG or JPG
-behind a signed URL. Every render is deterministic and cached, so the same input always returns
-the same file and an identical repeat call costs nothing.
+behind a signed URL. Every render is deterministic and cached, so the same input returns the same
+file and an identical repeat call costs nothing.
 
 ```
 https://mcp.galleyrender.com/mcp
 ```
 
-Streamable HTTP. Ten tools. **No API key needed to start** — the first `render` mints a
-50-render trial and hands back its token, and `create_account` upgrades that trial in place
-without losing anything made during it.
+It's streamable HTTP with sixteen tools, and you don't need an API key to start. The
+first call without one mints a trial of 10 PDF pages or 10 images and returns its token.
+`create_account` turns that trial into an account in place, so nothing you made during it is lost.
 
-This repository is the public manifest for that server: what it is, where it lives, and how to
-connect a client to it. The service itself is closed-source; see [Licence](#licence).
+This repository is the public manifest for that server: what it is, where it lives and how to
+connect a client to it. The service itself is closed source (see [License](#license)).
 
-- Website — <https://galleyrender.com>
-- Docs — <https://galleyrender.com/docs>
-- MCP setup — <https://galleyrender.com/docs/mcp>
-- Privacy — <https://galleyrender.com/privacy>
-- Terms — <https://galleyrender.com/terms>
-- Official MCP registry — `com.galleyrender/galley-render`
+- Website: <https://galleyrender.com>
+- Docs: <https://galleyrender.com/docs>
+- MCP setup: <https://galleyrender.com/docs/mcp>
+- Privacy: <https://galleyrender.com/privacy>
+- Terms: <https://galleyrender.com/terms>
+- Official MCP registry: `com.galleyrender/galley-render`
 
 ## Add it to a client
 
-### Cursor — one click
+### Cursor
 
 [![Add to Cursor](https://img.shields.io/badge/Add%20to-Cursor-000?logo=cursor&logoColor=fff)](cursor://anysphere.cursor-deeplink/mcp/install?name=galley-render&config=eyJ1cmwiOiJodHRwczovL21jcC5nYWxsZXlyZW5kZXIuY29tL21jcCJ9)
 
-If the badge does not open Cursor, paste the link:
+If the badge doesn't open Cursor, paste the link:
 
 ```
 cursor://anysphere.cursor-deeplink/mcp/install?name=galley-render&config=eyJ1cmwiOiJodHRwczovL21jcC5nYWxsZXlyZW5kZXIuY29tL21jcCJ9
 ```
 
-The manual equivalent, in `.cursor/mcp.json` (or `~/.cursor/mcp.json` for every project):
+Or add it by hand, in `.cursor/mcp.json` (or `~/.cursor/mcp.json` for every project):
 
 ```json
 {
   "mcpServers": {
     "galley-render": {
       "url": "https://mcp.galleyrender.com/mcp",
-      "headers": { "X-Galley-Api-Key": "glr_sk_…" }
+      "headers": { "Authorization": "Bearer glr_sk_…" }
     }
   }
 }
 ```
 
-Drop the `headers` block to stay on the keyless trial.
+Leave out `headers` to stay on the keyless trial.
 
 ### Claude Code
 
@@ -59,7 +60,7 @@ Once you have a key:
 
 ```bash
 claude mcp add --transport http galley https://mcp.galleyrender.com/mcp \
-  --header "X-Galley-Api-Key: $GALLEY_API_KEY"
+  --header "Authorization: Bearer $GALLEY_API_KEY"
 ```
 
 ### OpenAI Agents SDK
@@ -73,8 +74,8 @@ galley = MCPServerStreamableHttp(
     name="galley",
     params={
         "url": "https://mcp.galleyrender.com/mcp",
-        # Omit `headers` entirely to use the keyless trial.
-        "headers": {"X-Galley-Api-Key": os.environ["GALLEY_API_KEY"]},
+        # Leave out `headers` to use the keyless trial.
+        "headers": {"Authorization": f"Bearer {os.environ['GALLEY_API_KEY']}"},
     },
 )
 
@@ -85,10 +86,16 @@ agent = Agent(
 )
 ```
 
+### Clients that can't send a header
+
+Claude.ai custom connectors and ChatGPT apps have nowhere to put one. Call `link_account` once
+with your key, or with a one-time code that `create_account` emails you, and calls from that client
+then act on your account. [How it works](https://galleyrender.com/docs/mcp#use-your-key).
+
 ### Anything else
 
-Any MCP client that speaks streamable HTTP. `POST` JSON-RPC to `/mcp`. The server is stateless,
-so there is no session to keep:
+Any client that speaks streamable HTTP works. The server is stateless, so there's no session to
+keep and no handshake to do first. A single `tools/call` POST is enough:
 
 ```bash
 curl -sS https://mcp.galleyrender.com/mcp \
@@ -104,64 +111,80 @@ curl -sS https://mcp.galleyrender.com/mcp \
 
 | Tool | What it does | Billed |
 |---|---|---|
-| `list_templates` | Templates on the account, with their latest version | no |
-| `get_template` | One version: JSON Schema, options, example, HTML source | no |
-| `create_template` | Create a template at version 1 | no |
-| `update_template` | Publish a new immutable version | no |
-| `validate_data` | Dry-run a payload; the same field-level errors a render would give | no |
-| `render` | Template + data → signed URL for a PDF, PNG or JPG | 1 unit per PNG/JPG, 1 per PDF page |
-| `get_render` | Status, and a freshly signed URL | no |
-| `list_renders` | Recent renders, newest first | no |
-| `usage` | Period usage, cost, free-tier balance, spend cap, trial balance | no |
-| `create_account` | Email → verification link → API key | no |
+| `list_templates` | Templates on the account with their latest version. A new account already has the full starter library. | no |
+| `get_template` | One version in full: JSON Schema, default options, example payload, HTML source. `include_source: false` trims the source. | no |
+| `create_template` | Create a template at version 1 from HTML, Liquid and a JSON Schema. | no |
+| `update_template` | Publish a new immutable version. Earlier versions keep rendering. | no |
+| `validate_data` | Dry-run a payload against the schema. Same field errors a render would give. Renders nothing. | no |
+| `render` | Template plus data → a signed URL for a PDF, PNG or JPG. | **yes** — per PNG/JPG and per PDF page. Cache hits free. |
+| `get_render` | Status by id, plus a freshly signed URL. Never re-renders. | no |
+| `list_renders` | Recent renders, newest first, with a signed URL for each. | no |
+| `usage` | Period usage, billable units by format, cost, free-tier balance, spend cap, trial balance. | no |
+| `whoami` | The account, the plan, the PDF pages or images remaining on its trial or free tier, and **how this request authenticated**: `header`, `binding` or `trial`. | no |
+| `create_account` | Email → verification link → API key. Upgrades the trial in place. An address that already has an account gets a link code instead of a second account. | no |
+| `link_account` | Bind this client to an existing account with an `api_key` or a mailed `link_code`. For clients that cannot send headers. | no |
+| `unlink_account` | Undo it, and revoke the key the binding held. | no |
+| `rotate_key` | Mint a fresh API key for this account and show it once. A second call, with `confirm_saved` and the old key's id, revokes the old one — in that order, so nothing running on it stops before the new key is saved. | no |
+| `upgrade` | A Stripe Checkout link, for a human to open. Charges nothing by itself. | no |
+| `billing_portal` | A Stripe portal link: change plan, update the card, cancel. | no |
 
-Cache hits are never billed.
+`render` is the only tool that's billed. It's billed per PDF page and per PNG or JPG, and a cache
+hit (the same template version, data and options) comes back with `cached: true` for free.
+
+A PDF page uses 2.5 times as much of a paid plan's allowance as an image does, so a month of both lands in between: on Solo, 100 PDF pages and 250 images use the whole allowance.
+
+The keyless trial is 10 PDF pages or 10 images for its lifetime.
+The free tier is 5 PDF pages or 5 images a month.
+Plans and overage rates are on <https://galleyrender.com/pricing>.
 
 ## Templates
 
-Templates are code: HTML and CSS with a small expression language, versioned like git, each one
-carrying a JSON Schema that is the contract for its data. Validation errors are written for an
-agent to act on — field path, expected type, what was received, and an accepted example.
+Templates are code: HTML and CSS with Liquid expressions, versioned like git, and each version
+carries a JSON Schema that's the contract for its data. Validation errors are written for an agent
+to act on. They give the field path, the expected type, what arrived and a value that would be
+accepted.
 
-The starter library covers invoices, quotes, estimates, change orders, receipts, statements,
-purchase orders, certificates, report covers and table pages, shipping labels, packing slips, OG
-cards, social quote cards, event tickets, badges, menus, price sheets, letters and slide decks.
+Every account starts with the starter library of 43 templates, among them invoices,
+quotes, change orders, receipts, statements, purchase orders, certificates, report covers and
+tables, shipping labels, packing slips, OG and quote cards, event tickets and programs, badges,
+menus, price sheets, letters, meeting agendas and minutes, and slide decks. They're all on
+<https://galleyrender.com/templates>.
 
 ## Files here
 
 | File | What it is |
 |---|---|
-| [`plugin.json`](./plugin.json) | Agent Plugins 1.1.0 manifest — the file directories look for first |
+| [`plugin.json`](./plugin.json) | Agent Plugins 1.1.0 manifest, the file directories look for first |
 | [`mcp.json`](./mcp.json) | Agent Plugins MCP configuration: one `streamable-http` server |
-| [`server.json`](./server.json) | The entry published to the official MCP registry, schema `2025-12-11` |
+| [`server.json`](./server.json) | What we publish to the official MCP registry, schema `2025-12-11`. It can run ahead of the registry between publishes |
 | [`README.md`](./README.md) | This page |
 
-There is no source code in this repository and none is planned. It exists so that directories
-which require a public repository — cursor.directory, mcp.so, the n8n Creator Portal — have one
-to read.
+There's no source code here and none is planned. The repository exists so directories that require
+a public repository, like cursor.directory and mcp.so, have one to read.
 
 `plugin.json` and `mcp.json` follow the [Agent Plugins](https://agent-plugins.org) standard
-(formerly Open Plugins), both validated against the 1.1.0 schemas, which is what
-[cursor.directory](https://cursor.directory) auto-detects from a repository URL. Note that the
-standard spells the transport `streamable-http`, while a hand-written `~/.cursor/mcp.json` uses
-the shorter shape shown above — Cursor accepts either.
+(formerly Open Plugins) and validate against its 1.1.0 schemas, which is what
+[cursor.directory](https://cursor.directory) auto-detects from a repository URL. The standard
+spells the transport `streamable-http`, and a hand-written `~/.cursor/mcp.json` uses the shorter
+shape above. Cursor accepts either.
 
-`server.json` is generated from the Galley Render monorepo and re-published to the registry
-whenever the tool surface changes; treat it as a copy, not the source of truth.
+Every file here is copied from the Galley Render source, where it's checked against the live
+catalog and the server's own tool list. A pull request here would be overwritten by the next copy,
+so send suggestions to support@galleyrender.com instead.
 
-## Not MCP?
+## Not using MCP?
 
-Every tool above is a thin wrapper over `https://api.galleyrender.com`, so nothing is MCP-only.
-The REST surface is OpenAPI 3.1 at <https://api.galleyrender.com/openapi.json>, and there are
-Node and Python clients — see <https://galleyrender.com/docs/sdks>.
+The tools call the same REST API, at `https://api.galleyrender.com`. It's described in OpenAPI 3.1
+at <https://api.galleyrender.com/openapi.json>, and there are Node and Python clients:
+<https://galleyrender.com/docs/sdks>.
 
-## Licence
+## License
 
-The files in this repository — `README.md`, `plugin.json`, `mcp.json` and `server.json` — are
-released under the [MIT licence](./LICENSE), so a directory or client may copy them freely.
+The files in this repository (`README.md`, `plugin.json`, `mcp.json` and `server.json`) are
+released under the [MIT License](./LICENSE), so a directory or a client can copy them freely.
 
-That licence covers **these manifest files only**. It is not a licence to the Galley Render
-service, its API, its templates or its name. Use of the service is governed by the
+That license covers these manifest files only. It isn't a license to the Galley Render service,
+its API, its templates or its name. Use of the service is governed by the
 [terms](https://galleyrender.com/terms) and the [privacy policy](https://galleyrender.com/privacy).
 
 Questions: support@galleyrender.com
