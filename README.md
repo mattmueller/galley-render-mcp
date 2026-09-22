@@ -11,7 +11,9 @@ https://mcp.galleyrender.com/mcp
 
 It's streamable HTTP with sixteen tools, and you don't need an API key to start. The
 first call without one mints a trial of 10 PDF pages or 10 images and returns its token.
-`create_account` turns that trial into an account in place, so nothing you made during it is lost.
+`create_account` asks the owner of an email address to confirm the request, by a link that shows
+who asked and a short code, and then turns that trial into an account in place, so nothing you made
+during it is lost.
 
 This repository is the public manifest for that server: what it is, where it lives and how to
 connect a client to it. The service itself is closed source (see [License](#license)).
@@ -88,9 +90,12 @@ agent = Agent(
 
 ### Clients that can't send a header
 
-Claude.ai custom connectors and ChatGPT apps have nowhere to put one. Call `link_account` once
-with your key, or with a one-time code that `create_account` emails you, and calls from that client
-then act on your account. [How it works](https://galleyrender.com/docs/mcp#use-your-key).
+Claude.ai custom connectors and ChatGPT apps have nowhere to put one, and they call from their
+vendor's servers, so on the shared address every one of their users looks the same. Add the server
+with a personal address instead, `https://mcp.galleyrender.com/mcp/c/<random id>`
+([galleyrender.com/docs/connect](https://galleyrender.com/docs/connect) makes one), then call
+`link_account` once with your key, or with a one-time code that `create_account` emails you, and
+calls from that client act on your account. [How it works](https://galleyrender.com/docs/mcp#use-your-key).
 
 ### Anything else
 
@@ -121,8 +126,8 @@ curl -sS https://mcp.galleyrender.com/mcp \
 | `list_renders` | Recent renders, newest first, with a signed URL for each. | no |
 | `usage` | Period usage, billable units by format, cost, free-tier balance, spend cap, trial balance. | no |
 | `whoami` | The account, the plan, the PDF pages or images remaining on its trial or free tier, and **how this request authenticated**: `header`, `binding` or `trial`. | no |
-| `create_account` | Email → verification link → API key. Upgrades the trial in place. An address that already has an account gets a link code instead of a second account. | no |
-| `link_account` | Bind this client to an existing account with an `api_key` or a mailed `link_code`. For clients that cannot send headers. | no |
+| `create_account` | Email → a link and a request code → the owner confirms the request → API key. Upgrades this client's trial in place. An address that already has an account gets a link code instead of a second account. | no |
+| `link_account` | Bind this client to an existing account with an `api_key` or a mailed `link_code`. For clients that cannot send headers, and only a client with an identity of its own. | no |
 | `unlink_account` | Undo it, and revoke the key the binding held. | no |
 | `rotate_key` | Mint a fresh API key for this account and show it once. A second call, with `confirm_saved` and the old key's id, revokes the old one — in that order, so nothing running on it stops before the new key is saved. | no |
 | `upgrade` | A Stripe Checkout link, for a human to open. Charges nothing by itself. | no |

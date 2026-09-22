@@ -3,7 +3,7 @@
   "name": "com.galleyrender/galley-render",
   "title": "Galley Render",
   "description": "JSON in, PDF out. Render invoices, certificates, reports and cards from a template and a payload.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "websiteUrl": "https://galleyrender.com",
   "icons": [
     {

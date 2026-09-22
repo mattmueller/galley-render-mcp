@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.1.0/plugin.schema.json",
   "name": "galley-render",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "JSON in, PDF out. Render invoices, certificates, reports and cards from a template and a payload. No API key needed to start.",
   "author": {
     "name": "Galley Render",
